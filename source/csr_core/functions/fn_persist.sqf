@@ -1,0 +1,10 @@
+if (!isServer || {isRemoteExecuted && {isNil "_CSR_requestContext"}}) exitWith {};
+if (localNamespace getVariable ["CSR_readOnly",true] || {!(localNamespace getVariable ["CSR_dirty",false])}) exitWith {};
+private _roster = localNamespace getVariable "CSR_roster";
+private _members = localNamespace getVariable "CSR_members";
+private _data = [5,(keys _roster) apply {+(_roster get _x)},+(localNamespace getVariable "CSR_audit"),call CSR_fnc_getRegistry,(keys _members) apply {+(_members get _x)}];
+if !([_data] call CSR_fnc_validStore) exitWith {diag_log "[CSR] Refused invalid snapshot; writes remain dirty.";};
+profileNamespace setVariable ["CSR_store_backup_v1",+(profileNamespace getVariable ["CSR_store_v1",[1,[],[]]])];
+profileNamespace setVariable ["CSR_store_v1",_data];
+saveProfileNamespace;
+localNamespace setVariable ["CSR_dirty",false];
